@@ -1,40 +1,69 @@
 #!/usr/bin/env python
 
-import argparse
 import docker
+import os
+import sys
 
 client = None
 
-def list(): 
-    images = client.images.list(filters={'reference': 'hps'})
-    for image in images: print(image)
 
-def run(): 
+def list():
+    images = client.images.list(filters={'reference': 'hps'})
+    for image in images:
+        print(image)
+
+
+def get_value(args, var):
+    index = args.index(var)
+    val = args.pop(index + 1)
+    del args[index]
+    return val
+
+
+def run():
     global client
 
-    parser = argparse.ArgumentParser(
-            description='A set of utilities used to run HPS specific docker images.')
-    parser.add_argument('command')
-    parser.add_argument('-i', '--image', 
-            help='The name of the image to run')
-    parser.add_argument('-l', '--list',  action='store_true',
-            help='List the available HPS images.')
-    args = parser.parse_args()
+    args = sys.argv[1:]
+    if len(args) == 0:
+        print('Please specify a command.')
+        return
 
-    if not client: 
+    if not client:
         client = docker.from_env()
 
-    if args.list:
-        list()
-
     image = 'hps:latest'
-    if args.image:
-        image = args.image
+    if 'list' in args:
+        list()
+        return
 
-    if not args.command: 
-        parser.error('A command needs to be specified.')
+    if 'image' in args:
+        image = get_value(args, 'image')
 
-    print(client.containers.run(image, args.command).decode('UTF-8').strip('\n'), flush=True)
+    directory = os.getcwd()
+    mount = ['%s:%s' % (directory, directory)]
+    if 'mount' in args:
+        directory = get_value(args, 'mount').split(',')
+        if directory not in mount:
+            mound.append(directory)
+
+    if 'directory' in args:
+        directory = get_value(args, 'directory')
+        if directory not in mount:
+            mount.append(directory)
+
+    if len(args) == 0:
+        return
+
+    command = '%s %s' % (directory, ' '.join(args))
+
+    user = os.getuid()
+    print(client.containers.run(image,
+                                command,
+                                remove=True,
+                                volumes=mount,
+                                user=user).decode('UTF-8').strip('\n'),
+          flush=True)
+
 
 if __name__ == "__main__":
     run()

@@ -27,7 +27,10 @@ RUN mkdir software &&\
     sed -i 's/g77/gfortran/g' makefile &&\
     sed -i 's/-i4//g' makefile &&\
     make
-    
+
+RUN cd /software &&\
+    git clone https://github.com/omar-moreno/hps-mg.git &&\
+    cd hps-mg
     #git clone --depth 1 --branch v10.6.3 https://github.com/Geant4/geant4.git geant4 &&\
     #mkdir -p geant4/build && cd geant4/build &&\
     #cmake \
@@ -39,6 +42,6 @@ RUN mkdir software &&\
     #cd ../install &&\
     #export G4DIR=$PWD
 
-#COPY ./entrypoint.sh /etc/
-#RUN chmod 755 /etc/entrypoint.sh
-#ENTRYPOINT ["/etc/entrypoint.sh"]
+COPY ./entrypoint.sh /etc/
+RUN chmod 755 /etc/entrypoint.sh
+ENTRYPOINT ["/etc/entrypoint.sh"]

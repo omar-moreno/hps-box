@@ -2,6 +2,7 @@
 
 import docker
 import hps
+import os
 import sys
 
 def get_value(args, var):
@@ -25,7 +26,7 @@ def run():
     if 'image' in args:
         image = get_value(args, 'image')
 
-    directory = os.getcwd()
+    directory = '/current'
     if 'directory' in args: 
         directory = get_value(args, 'directory')
 

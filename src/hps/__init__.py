@@ -24,7 +24,7 @@ def execute(command : str, **kwargs):
     mount = ['%s:/current' % os.getcwd()]
     if 'mount' in kwargs:
         directory = kwargs['mount']
-        if (not directory) & (directory not in mount): 
+        if (directory != '') & (directory not in mount): 
             mount.append(directory)
 
     print(client.containers.run(image, 

@@ -20,17 +20,15 @@ RUN zypper refs && zypper refresh &&\
 RUN mkdir software &&\
     cd software &&\
     export MG4=MG_ME_V4.5.2 &&\
-    wget http://madgraph.physics.illinois.edu/Downloads/$MG4.tar.gz &&\
-    #tar -zxvf MG_ME_V4.5.2.tar.gz
-    tar -zxvf $MG4.tar.gz &&\
+    wget http://madgraph.phys.ucl.ac.be/Downloads/$MG4.tar.gz &&\
+    tar -zxvf $MG4.tar.gz; rm $MG4.tar.gz &&\
     cd $MG4/MadGraphII &&\
     sed -i 's/g77/gfortran/g' makefile &&\
     sed -i 's/-i4//g' makefile &&\
     make
 
 RUN cd /software &&\
-    git clone https://github.com/omar-moreno/hps-mg.git &&\
-    cd hps-mg
+    git clone https://github.com/omar-moreno/hps-mg.git 
     #git clone --depth 1 --branch v10.6.3 https://github.com/Geant4/geant4.git geant4 &&\
     #mkdir -p geant4/build && cd geant4/build &&\
     #cmake \

@@ -17,7 +17,9 @@ RUN zypper --non-interactive refs &&\
     wget \ 
     tar \
     gzip \
-    libz1 
+    zlib-devel \
+    libxerces-c-devel \
+    libxerces-c-3_2 
 
 RUN mkdir software
 #    cd software &&\
@@ -40,9 +42,7 @@ RUN cd /software &&\
       -DGEANT4_USE_GDML=ON \
       -DGEANT4_INSTALL_EXAMPLES=OFF \
       -DCMAKE_INSTALL_PREFIX=../install .. &&\
-    make -j3 install &&\
-    cd ../install &&\
-    export G4DIR=$PWD
+    make -j8 install 
 
 RUN cd /software &&\
     git clone https://github.com/JeffersonLab/hps-lcio.git lcio &&\
@@ -50,7 +50,29 @@ RUN cd /software &&\
     cmake -DINSTALL_DOC=OFF \ 
           -DBUILD_LCIO_EXAMPLES=OFF \
           -DCMAKE_INSTALL_PREFIX=../install .. &&\
-    make -j3 install &&\
+    make -j8 install 
+
+RUN cd /software &&\
+    git clone https://github.com/slaclab/heppdt.git &&\
+    cd heppdt &&\
+    ./configure --prefix=$PWD/install --disable-static &&\
+    make -j8 install
+
+RUN cd /software &&\
+    git clone https://github.com/slaclab/gdml.git &&\
+    mkdir -p gdml/build && cd gdml/build &&\
+    cmake -DGeant4_DIR=/software/geant4/install/lib64/Geant4-10.6.3 \
+          -DCMAKE_INSTALL_PREFIX=../install .. &&\
+    make -j8 install
+
+RUN cd /software &&\
+    git clone https://github.com/slaclab/lcdd.git &&\
+    mkdir -p lcdd/build && cd lcdd/build &&\
+    cmake -DINSTALL_DOC=OFF \
+          -DGeant4_DIR=/software/geant4/install/lib64/Geant4-10.6.3 \
+          -DGDML_DIR=/software/gdml/install \ 
+          -DCMAKE_INSTALL_PREFIX=../install .. &&\
+    make -j8 install
 
 COPY ./entrypoint.sh /etc/
 RUN chmod 755 /etc/entrypoint.sh

@@ -26,11 +26,13 @@ RUN apt-get update && \
       libxi-dev \
       libxrender-dev \
       libxmu-dev \
-      qt5-default \
+      qt5-default 
 
-#RUN mkdir packages
+RUN mkdir packages
 
-#RUN cd /packages && \
-#     git clone --depth 1 --branch v10.6.3 https://github.com/Geant4/geant4.git geant4 &&\
-#     mkdir -p geant4/build && cd geant4/build &&\
-#     cmake \
+RUN cd /packages && \
+      git clone --depth 1 --branch LDMX.10.2.3_v0.5 https://github.com/LDMX-Software/geant4.git geant4 &&\
+      mkdir -p geant4/build && cd geant4/build &&\
+      cmake -DCMAKE_INSTALL_PREFIX=../install -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_OPENGL_X11=ON .. &&\
+      make -j4 install
+

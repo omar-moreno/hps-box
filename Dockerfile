@@ -36,3 +36,14 @@ RUN cd /packages && \
       cmake -DCMAKE_INSTALL_PREFIX=../install -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_QT=ON -DGEANT4_USE_OPENGL_X11=ON .. &&\
       make -j4 install
 
+RUN cd /packages &&\
+      git clone https://github.com/JeffersonLab/hps-lcio.git lcio &&\
+      mkdir -p lcio/build && cd lcio/build &&\
+      cmake -DINSTALL_DOC=OFF -DBUILD_LCIO_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=../install .. &&\
+      make -j4 install
+
+RUN cd /packages &&\
+      git clone https://github.com/slaclab/heppdt.git &&\
+      cd heppdt &&\
+      ./configure --prefix=$PWD/install --disable-static &&\
+      make -j4 install

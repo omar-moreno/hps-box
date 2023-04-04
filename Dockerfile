@@ -33,60 +33,58 @@ RUN apt-get update && \
 
 RUN mkdir packages
 
-RUN cd ${PACKAGES} && \
-      git clone --depth 1 --branch LDMX.10.2.3_v0.5 \
-                 https://github.com/LDMX-Software/geant4.git geant4 &&\
-      mkdir -p geant4/build && cd geant4/build &&\
-      cmake -DCMAKE_INSTALL_PREFIX=../install \
-            -DGEANT4_INSTALL_DATA=ON \
+RUN cd ${PACKAGES} &&\
+    #git clone --depth 1 --branch v10.5.1 https://github.com/Geant4/geant4.git &&\
+    git clone --depth 1 --branch LDMX.10.2.3_v0.5 https://github.com/LDMX-Software/geant4.git &&\
+    mkdir -p geant4/build && cd geant4/build &&\
+    cmake   -DGEANT4_INSTALL_DATA=ON \
             -DGEANT4_USE_QT=ON \
             -DGEANT4_USE_OPENGL_X11=ON .. &&\
-      make -j4 install
+    make -j`nproc` install
 
-ENV G4DIR=${PACKAGES}/geant4/install
-
-RUN source ${G4DIR}/bin/geant4.sh
+ENV G4DATA=/usr/local/share/Geant4-10.2.3/data
+ENV G4LEDATA=${G4DATA}/G4EMLOW6.48
+ENV G4LEVELGAMMADATA=${G4DATA}/PhotonEvaporation3.2
+ENV G4RADIOACTIVEDATA=${G4DATA}/RadioactiveDecay4.3.2
+#ENV G4PARTICLEXSDATA=${G4DATA}/G4PARTICLEXS3.1.1
+ENV G4PIIDATA=${G4DATA}/G4PII1.3
+ENV G4REALSURFACEDATA=${G4DATA}/RealSurface1.0
+ENV G4SAIDXSDATA=${G4DATA}/G4SAIDDATA1.1
+ENV G4ABLADATA=${G4DATA}/G4ABLA3.0
+#ENV G4INCLDATA=${G4DATA}/G4INCL1.0
+ENV G4ENSDFSTATEDATA=${G4DATA}/G4ENSDFSTATE1.2.3
 
 RUN cd /packages &&\
       git clone https://github.com/JeffersonLab/hps-lcio.git lcio &&\
       mkdir -p lcio/build && cd lcio/build &&\
       cmake -DINSTALL_DOC=OFF \ 
-            -DBUILD_LCIO_EXAMPLES=OFF \ 
-            -DCMAKE_INSTALL_PREFIX=../install .. &&\
-      make -j4 install
-
-ENV LCIO_DIR=${PACKAGES}/lcio/install
-ENV LD_LIBRARY_PATH=${LCIO_DIR}/lib:${LD_LIBRARY_PATH}
-ENV PATH=${LCIO_DIR}/bin:${PATH}
+            -DBUILD_LCIO_EXAMPLES=OFF \
+            -DCMAKE_INSTALL_PREFIX=/usr/local .. &&\ 
+      make -j`nproc` install
 
 RUN cd /packages &&\
       git clone https://github.com/slaclab/heppdt.git &&\
       cd heppdt &&\
-      ./configure --prefix=${PWD}/install --disable-static &&\
-      make -j4 install
-
-ENV HEPPDT_DIR=${PACKAGES}/heppdt/install
-ENV LD_LIBRARY_PATH=${HEPPDT_DIR}/lib:${LD_LIBRARY_PATH}
+      ./configure --disable-static &&\
+      make -j`nproc` install
 
 RUN cd /packages &&\
       git clone https://github.com/slaclab/gdml.git &&\
-      mkdir -p gdml/build && cd gdml/build &&\
-      cmake -DGeant4_DIR=${G4DIR}/lib/Geant4-10.2.3/ \
-            -DCMAKE_INSTALL_PREFIX=../install .. &&\
-      make -j4 install
-
-ENV GDML_DIR=${PACKAGES}/gdml/install
-ENV LD_LIBRARY_PATH=${GDML_DIR}/lib:${LD_LIBRARY_PATH}
+      mkdir -p gdml/build && cd gdml/build && cmake .. &&\
+      make -j`nproc` install
 
 RUN cd /packages &&\
       git clone https://github.com/slaclab/lcdd.git &&\
       mkdir -p lcdd/build && cd lcdd/build &&\
+      cmake -DINSTALL_DOC=OFF .. &&\
+      make -j`nproc` install
+
+RUN cd /packages &&\
+      git clone https://github.com/slaclab/slic.git && cd slic &&\
+      git checkout iss98 &&\
+      mkdir -p build && cd build/ &&\
       cmake -DINSTALL_DOC=OFF \
-            -DGeant4_DIR=${G4DIR}/lib/Geant4-10.2.3/ \
-            -DGDML_DIR=${GDML_DIR} \
-            -DCMAKE_INSTALL_PREFIX=../install .. &&\
-      make -j4 install
-
-ENV LCDD_DIR=${PACKAGES}/lcdd/install
-ENV LD_LIBRARY_PATH=${LCDD_DIR}/lib:${LD_LIBRARY_PATH}
-
+            -DCMAKE_INSTALL_PREFIX=/usr/local \
+            -DQT_VIS=ON \
+            -DWITH_GEANT4_UIVIS=ON .. &&\
+      make -j`nproc` install

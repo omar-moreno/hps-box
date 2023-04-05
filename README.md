@@ -22,11 +22,7 @@ distrobox enter hps-box
 
 To run the visualization, first enter the distrobox environment as above.  Then navigate to the directory containing the detector .lcdd and run slic as follows
 ```bash
-slic -g detector.lcdd -n
+slic -g detector.lcdd -n -m -m $PACKAGES/slic/macros/vis_qt.mac
 ```
-This will bring up a QT window with an interactive promp that allows issuing Geant4 commands.  At this point, issuing the following commands will draw the detector
-```
-/vis/open OGLSQt
-/vis/drawVolume
-```
+This will bring up a QT window with the detector drawn.
 

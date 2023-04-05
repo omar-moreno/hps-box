@@ -11,7 +11,7 @@ The Heavy Photon Search software stack in a containarized environment.
 
 Creating an environment using distrobox can be done as follows
 ```bash
-distrobox create --image omarmoreno/hps-box:v0.2 --name hps-box --home /path/to/desired/home
+distrobox create --image omarmoreno/hps-box:v0.3 --name hps-box --home /path/to/desired/home
 ```
 Once created, the environment can be entered as follows
 ```bash

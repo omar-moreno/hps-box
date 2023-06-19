@@ -21,18 +21,63 @@ RUN apt-get update && \
       python3-pyqt5.qtsvg \
       libboost-all-dev \
       libbz2-dev \
-      libzmq3-dev
+      libzmq3-dev \
+      libcurl4-gnutls-dev \
+      libfabric-dev \
+      libreadline-dev \
+      pkg-config 
+
+RUN pip3 install matplotlib \
+    parse \
+    click \
+    ipython \
+    pyzmq \
+    packaging \ 
+    numpy \
+    p4p \ 
+    jsonpickle \ 
+    sqlalchemy \ 
+    pyserial \ 
+    pydm>=1.18.0 
+
 RUN mkdir packages
 
+# Install the latest version of rogue and setup environment
 RUN cd /packages &&\
       git clone https://github.com/slaclab/rogue.git &&\
       cd rogue && pip3 install -r pip_requirements.txt &&\
       mkdir build && cd build &&\
       cmake .. -DROGUE_INSTALL=system &&\ 
       make -j`nproc` install
+ARG PYTHON_DIR=/usr/local/lib/python3.8/dist-packages
+ENV PYQTDESIGNERPATH=${PYTHON_DIR}/pyrogue/pydm
+ENV PYDM_DATA_PLUGINS_PATH=${PYTHON_DIR}/pyrogue/pydm/data_plugins
+ENV PYDM_TOOLS_PATH=${PYTHON_DIR}/pyrogue/pydm/tools
 
 RUN cd /packages &&\
-      git clone https://github.com/omar-moreno/lcls2.git &&\
-      cmake .. &&\
+      git clone https://github.com/Tencent/rapidjson.git &&\
+      mkdir -p rapidjson/build && cd rapidjson/build &&\
+      cmake .. &&\ 
       make -j`nproc` install
+
+RUN cd /packages &&\
+      git clone https://github.com/jupp0r/prometheus-cpp.git &&\
+      cd prometheus-cpp &&\
+      git submodule init && git submodule update &&\
+      mkdir build && cd build &&\
+      cmake .. -DBUILD_SHARED_LIBS=ON -DENABLE_PUSH=OFF -DENABLE_COMPRESSION=OFF &&\ 
+      make -j`nproc` install
+
+RUN cd /packages &&\
+      git clone --recursive https://github.com/epics-base/epics-base.git &&\
+      cd epics-base &&\
+      make -j`nproc` 
+
+ENV EPICS_BASE=/packages/epics-base
+ENV PATH=${EPICS_BASE}/bin/linux-x86_64:${PATH}
+
+#RUN cd /packages &&\
+#      git clone https://github.com/omar-moreno/lcls2.git &&\
+#      cmake .. &&\
+#      make -j`nproc` install
 

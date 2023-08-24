@@ -1,0 +1,13 @@
+FROM ubuntu:23.10
+
+RUN apt-get update && apt-get install -y \
+    build-essential \ 
+    wget \
+    clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ARG conda_version="Anaconda3-2023.07-2-Linux-x86_64.sh"
+RUN mkdir /packages && cd /packages && \
+    wget https://repo.anaconda.com/archive/$conda_versioni && \
+    /bin/bash $coda_version -b -p /opt/anaconda
+

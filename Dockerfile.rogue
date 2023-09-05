@@ -14,6 +14,16 @@ RUN conda config --set channel_priority strict &&\
 
 RUN conda create -n rogue_tag -c tidair-tag -c conda-forge rogue
 
+RUN echo "conda activate rogue_tag" >> ~/.bashrc
+SHELL ["/bin/bash", "--login", "-c"]
+
+RUN pip3 uninstall -y p4p
+
+RUN pip3 install \ 
+      cothread \
+      softioc
+    
+
 #RUN apt-get update && apt-get install -y \
 #    build-essential \ 
 #    wget \
